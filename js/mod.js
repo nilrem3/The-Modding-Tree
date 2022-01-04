@@ -1,13 +1,13 @@
 let modInfo = {
-	name: "The ??? Tree",
-	id: "mymod",
-	author: "nobody",
+	name: "The Number Tree",
+	id: "numbertreebynilrem1",
+	author: "Nilrem",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (10), // Used for hard resets and new players
+	initialStartPoints: new Decimal(0), // Used for hard resets and new players
 	offlineLimit: 1,  // In hours
 }
 
@@ -43,6 +43,16 @@ function getPointGen() {
 		return new Decimal(0)
 
 	let gain = new Decimal(1)
+
+	gain = gain.times(effectOfUpgrade('p', 11))
+	gain = gain.times(effectOfUpgrade('p', 12))
+	gain = gain.times(effectOfUpgrade('p', 13))
+	gain = gain.times(effectOfUpgrade('p', 15))
+
+	gain = gain.times(effectOfUpgrade('p', 23))
+
+	gain = gain.times(layers['m'].effect())
+
 	return gain
 }
 
@@ -76,4 +86,9 @@ function maxTickLength() {
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,
 // you can cap their current resources with this.
 function fixOldSave(oldVersion){
+}
+
+function effectOfUpgrade(layer, id){
+	if(hasUpgrade(layer, id)) return upgradeEffect(layer, id)
+	return new Decimal(1)
 }

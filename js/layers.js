@@ -1,12 +1,13 @@
 addLayer("p", {
     name: "prestige", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "P", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
+        total: new Decimal(0)
     }},
-    color: "#4BDC13",
+    color: "#363636",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "prestige points", // Name of prestige currency
     baseResource: "points", // Name of resource prestige is based on
@@ -15,14 +16,317 @@ addLayer("p", {
     exponent: 0.5, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+
+        mult = mult.times(effectOfUpgrade('p', 21))
+        mult = mult.times(effectOfUpgrade('p', 22))
+
+        mult = mult.times(effectOfUpgrade('p2', 11))
+
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
     row: 0, // Row the layer is in on the tree (0 is the first row)
-    hotkeys: [
-        {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
-    ],
-    layerShown(){return true}
+    layerShown(){return true},
+    upgrades: {
+        11: {
+            title: "Basic Multiplier",
+            description: "Multiply point gain by 2",
+            cost: new Decimal(1),
+            effect(){
+                var e = new Decimal(2);
+
+                e = e.pow(effectOfUpgrade('b', 11))
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            }
+        },
+        12: {
+            title: "Stronger Multiplier",
+            description: "Multiply Point gain by 5",
+            cost: new Decimal(2),
+            effect(){
+                var e = new Decimal(5);
+
+                e = e.pow(effectOfUpgrade('b', 12))
+
+                return e
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            }
+        },
+        13: {
+            title: "Log Multiplier",
+            description: "Multiply Point gain by log10(Total prestige points)",
+            cost: new Decimal(5),
+            effect(){
+                var e = Decimal.log(player[this.layer].total.add(1), 10).add(1);
+
+                return e
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            }
+        },
+        14: {
+            title: "New Layer",
+            description: "Unlocks a new layer",
+            cost: new Decimal(30)
+        },
+        15: {
+            title: "Another Multiplier",
+            description: "Multiply Point gain by 3",
+            cost: new Decimal(50),
+            effect(){
+                var e = new Decimal(3);
+
+                e = e.pow(effectOfUpgrade('b', 11))
+
+                return e
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            }
+        },
+        21: {
+            title: "More Prestige Points",
+            description: "Prestige Point Gain multiplied by 1.5",
+            cost: new Decimal(100),
+            effect(){
+                var e = new Decimal(1.5);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasMilestone('m', 0)
+            }
+        },
+        22: {
+            title: "Multiplied Prestige Points",
+            description: "Prestige Point Gain multiplied by 1.1 for each Multiplication Point",
+            cost: new Decimal(250),
+            effect(){
+                var e = new Decimal(1.1).pow(player['m'].points);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasMilestone('m', 0)
+            }
+        },
+        23: {
+            title: "Point Log Multiplier",
+            description: "Point Gain multiplied by log10(points)",
+            cost: new Decimal(500),
+            effect(){
+                var e = Decimal.log(player.points.add(1), 10).add(1);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasMilestone('m', 0)
+            }
+        },
+        24: {
+            title: "Another New Layer",
+            description: "Unlocks a new layer",
+            cost: new Decimal(1500),
+            unlocked(){
+                return hasMilestone('m', 0)
+            }
+        },
+        25: {
+            title: "Another New Layer",
+            description: "Unlocks a new layer",
+            cost: new Decimal("1e4"),
+            unlocked(){
+                return hasMilestone('m', 0)
+            }
+        }
+    }
+})
+addLayer("m", {
+    name: "multiplication",
+    symbol: "M",
+    position: 2,
+    startData(){
+        return {
+            unlocked: true,
+            points: new Decimal(0)
+        }
+    },
+    color: "#c9b1fc",
+    requires: function() { return new Decimal("1e3").div(layers['p2'].effect())},
+    resource: "multiplication points",
+    baseResource: "points",
+    baseAmount(){return player.points},
+    type: "static",
+    exponent: new Decimal(2),
+    gainMult(){
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp(){
+        return new Decimal(1)
+    },
+    row: 0,
+    layerShown(){
+        return hasUpgrade('p', 14)
+    },
+    effect(){
+        var strength = new Decimal(2)
+
+        strength = strength.times(effectOfUpgrade('b', 13))
+
+        var e = strength.pow(player['m'].points);
+        return e;
+    },
+    effectDescription(){
+        return "multiplying point gain by " + format(layers['m'].effect());
+    },
+    milestones: {
+        0: {
+            requirementDescription: "3 MP",
+            effectDescription: "Unlock the next 5 prestige upgrades",
+            done(){ return player['m'].points.gte(3)}
+        }
+    }
+})
+addLayer("b", {
+    name: "Buffs",
+    symbol: "B",
+    position: 0,
+    startData(){
+        return {
+            unlocked: true,
+            points: new Decimal(0)
+        }
+    },
+    color: "#ff696",
+    requires: function() { return new Decimal("1e5").div(layers['p2'].effect())},
+    resource: "Buff Tokens",
+    baseResource: "points",
+    baseAmount(){return player.points},
+    type: "static",
+    exponent: new Decimal(3),
+    gainMult(){
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp(){
+        return new Decimal(1)
+    },
+    row: 0,
+    layerShown(){
+        return hasUpgrade('p', 24)
+    },
+    upgrades: {
+        11: {
+            title: "Basic Buff",
+            description: "Square effect of 'Basic Multiplier' and 'Another Multiplier'",
+            cost: new Decimal(1),
+            effect(){
+                var e = new Decimal(2)
+                return e;
+            },
+            effectDisplay(){
+                return "^" + format(upgradeEffect(this.layer, this.id))
+            }
+        },
+        12: {
+            title: "Basic Buff Part 2",
+            description: "Square effect of 'Stronger Multiplier'",
+            cost: new Decimal(2),
+            effect(){
+                var e = new Decimal(2)
+                return e;
+            },
+            effectDisplay(){
+                return "^" + format(upgradeEffect(this.layer, this.id))
+            }
+        },
+        13: {
+            title: "Stronger Multiplication Points",
+            description: "Multiply Multiplication Point Strength by 1.2",
+            cost: new Decimal(3),
+            effect(){
+                var e = new Decimal(1.2);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            onPurchase(){
+                player['p2'].unlocked = true;
+            }
+        }
+    }
+})
+addLayer("p2", {
+    name: "Prestige 2",
+    symbol: "P2",
+    position: 0,
+    startData(){
+        return {
+            unlocked: false,
+            points: new Decimal(0),
+            total: new Decimal(0)
+        }
+    },
+    color: "#696969",
+    requires: new Decimal("1e4"),
+    resource: "Prestige 2 Points",
+    baseResource: "prestige points",
+    baseAmount(){return player['p'].points},
+    type: "normal",
+    exponent: new Decimal(0.25),
+    gainMult(){
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp(){
+        return new Decimal(1)
+    },
+    row: 1,
+    layerShown(){
+        return player['p2'].unlocked;
+    },
+    upgrades: {
+        11: {
+            title: "Basic Prestige Point Multiplier",
+            description: "Multiply Prestige Point Gain by 1.5",
+            cost: new Decimal(1),
+            effect(){
+                var e = new Decimal(1.5);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            }
+        }
+    },
+    effect(){
+        var e = new Decimal(2).pow(player['p2'].points)
+
+        return e
+    },
+    effectDescription(){
+        return "dividing buff token and multiplication point costs by " + format(layers['p2'].effect());
+    }
 })
