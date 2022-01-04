@@ -155,8 +155,20 @@ addLayer("p", {
             cost: new Decimal("1e4"),
             unlocked(){
                 return hasMilestone('m', 0)
+            },
+            onPurchase(){
+                player['p2'].unlocked = true;
             }
         }
+    },
+    passiveGeneration(){
+        gen = new Decimal(0)
+        
+        if(hasUpgrade('p2', 12)){
+            gen = gen.plus(upgradeEffect('p2', 12))
+        }
+
+        return gen;
     }
 })
 addLayer("m", {
@@ -216,7 +228,7 @@ addLayer("b", {
             points: new Decimal(0)
         }
     },
-    color: "#ff696",
+    color: "#ff6969",
     requires: function() { return new Decimal("1e5").div(layers['p2'].effect())},
     resource: "Buff Tokens",
     baseResource: "points",
@@ -270,9 +282,6 @@ addLayer("b", {
             },
             effectDisplay(){
                 return "x" + format(upgradeEffect(this.layer, this.id));
-            },
-            onPurchase(){
-                player['p2'].unlocked = true;
             }
         }
     }
@@ -319,14 +328,39 @@ addLayer("p2", {
             effectDisplay(){
                 return "x" + format(upgradeEffect(this.layer, this.id));
             }
+        },
+        12: {
+            title: "Idle Prestige",
+            description: "Gain 10% of prestige point gain on reset per second",
+            cost: new Decimal(2),
+            effect(){
+                var e = new Decimal(0.1)
+                return e
+            },
+            effectDisplay(){
+                return format(upgradeEffect(this.layer, this.id).times(100)) + "%";
+            }
+        },
+        13: {
+            title: "Even More Points",
+            description: "Multiply Point gain by 4",
+            cost: new Decimal(5),
+            effect(){
+                var e = new Decimal(4)
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            }
         }
     },
     effect(){
-        var e = new Decimal(2).pow(player['p2'].points)
+        var e = new Decimal(2).pow(player['p2'].total)
 
         return e
     },
     effectDescription(){
         return "dividing buff token and multiplication point costs by " + format(layers['p2'].effect());
-    }
+    },
+    branches: ["p", "m", "b"]
 })
