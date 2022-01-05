@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "row 2 stuff",
+	num: "0.11",
+	name: "more row 2 stuff",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
@@ -54,6 +54,9 @@ function getPointGen() {
 	gain = gain.times(layers['m'].effect())
 
 	gain = gain.times(effectOfUpgrade('p2', 11))
+	gain = gain.times(effectOfUpgrade('p2', 13))
+
+	gain = gain.times(effectOfUpgrade('p', 31))
 
 	return gain
 }

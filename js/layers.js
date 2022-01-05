@@ -21,7 +21,10 @@ addLayer("p", {
         mult = mult.times(effectOfUpgrade('p', 22))
 
         mult = mult.times(effectOfUpgrade('p2', 12))
-        
+        mult = mult.times(effectOfUpgrade('p2', 13))
+
+        mult = mult.times(effectOfUpgrade('p', 32))
+
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -163,6 +166,68 @@ addLayer("p", {
             onPurchase(){
                 player['p2'].unlocked = true;
             }
+        },
+        31: {
+            title: "Massive Multiplier",
+            description: "Multiply Point gain by 10",
+            cost: new Decimal("1e6"),
+            effect(){
+                var e = new Decimal(10);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('p2', 14)
+            }
+        },
+        32: {
+            title: "Massive Prestige Point Multiplier",
+            description: "Multiply Prestige Point gain by 5",
+            cost: new Decimal("1e7"),
+            effect(){
+                var e = new Decimal(5);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('p2', 14)
+            }
+        },
+        33: {
+            title: "Make Upgrades More Useful",
+            description: "Multiply Point gain by 1.1 for each Prestige upgrade bought",
+            cost: new Decimal("1e8"),
+            effect(){
+                var e = new Decimal(1);
+
+                if(hasUpgrade('p', 11)) e = e.times(1.1);
+                if(hasUpgrade('p', 13)) e = e.times(1.1);
+                if(hasUpgrade('p', 12)) e = e.times(1.1);
+                if(hasUpgrade('p', 14)) e = e.times(1.1);
+                if(hasUpgrade('p', 15)) e = e.times(1.1);
+                if(hasUpgrade('p', 21)) e = e.times(1.1);
+                if(hasUpgrade('p', 22)) e = e.times(1.1);
+                if(hasUpgrade('p', 23)) e = e.times(1.1);
+                if(hasUpgrade('p', 24)) e = e.times(1.1);
+                if(hasUpgrade('p', 25)) e = e.times(1.1);
+                if(hasUpgrade('p', 31)) e = e.times(1.1);
+                if(hasUpgrade('p', 32)) e = e.times(1.1);
+                if(hasUpgrade('p', 33)) e = e.times(1.1);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('p2', 14)
+            }
         }
     }
 })
@@ -177,7 +242,13 @@ addLayer("m", {
         }
     },
     color: "#c9b1fc",
-    requires: function() { return new Decimal("1e3").div(layers['p2'].effect())},
+    requires: function() {
+        req = new Decimal("1e3") ;
+        req = req.div(layers['p2'].effect());
+        req = req.div(effectOfUpgrade('p', 33));
+
+        return req;
+    },
     resource: "multiplication points",
     baseResource: "points",
     baseAmount(){return player.points},
@@ -347,6 +418,29 @@ addLayer("p2", {
             effectDisplay(){
                 return "x" + format(upgradeEffect(this.layer, this.id));
             }
+        },
+        13: {
+            title: "Log Multiplier to Prestige Points and Points",
+            description: "Points and Prestige Points are both multiplied by Log10(Total Prestige 2 Points)",
+            cost: new Decimal(10),
+            effect(){
+                var e = player['p2'].total.add(1).log(10).add(1)
+
+                return e
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            }
+        },
+        14: {
+            title: "More Upgrades",
+            description: "Unlock the next 5 prestige upgrades",
+            cost: new Decimal(25)
+        },
+        15: {
+            title: "Breakfast Time",
+            description: "Unlock the next layer",
+            cost: new Decimal("1e3")
         }
     },
     effect(){
