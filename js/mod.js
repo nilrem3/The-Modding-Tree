@@ -58,6 +58,7 @@ function getPointGen() {
 
 	gain = gain.times(effectOfUpgrade('p', 31))
 	gain = gain.times(effectOfUpgrade('p', 33))
+	gain = gain.times(effectOfUpgrade('p', 35))
 
 	return gain
 }

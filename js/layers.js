@@ -219,6 +219,8 @@ addLayer("p", {
                 if(hasUpgrade('p', 31)) e = e.times(1.1);
                 if(hasUpgrade('p', 32)) e = e.times(1.1);
                 if(hasUpgrade('p', 33)) e = e.times(1.1);
+                if(hasUpgrade('p', 34)) e = e.times(1.1);
+                if(hasUpgrade('p', 35)) e = e.times(1.1);
 
                 return e;
             },
@@ -237,6 +239,22 @@ addLayer("p", {
                 var e = new Decimal(50);
 
                 return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('p2', 14)
+            }
+        },
+        35: {
+            title: "Buff Points Become (Very) Useful",
+            description: "Multiply Point Gain by (Buff Points + 1) ^ 2",
+            cost: new Decimal("1e9"),
+            effect(){
+                var e = player['b'].points.add(1).pow(2);
+
+                return e
             },
             effectDisplay(){
                 return "x" + format(upgradeEffect(this.layer, this.id));
