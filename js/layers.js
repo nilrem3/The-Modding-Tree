@@ -228,6 +228,22 @@ addLayer("p", {
             unlocked(){
                 return hasUpgrade('p2', 14)
             }
+        },
+        34: {
+            title: "Cheaper Multipliers",
+            description: "Cheapen Multiplication Points by 50x",
+            cost: new Decimal("5e8"),
+            effect(){
+                var e = new Decimal(50);
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('p2', 14)
+            }
         }
     }
 })
@@ -245,7 +261,7 @@ addLayer("m", {
     requires: function() {
         req = new Decimal("1e3") ;
         req = req.div(layers['p2'].effect());
-        req = req.div(effectOfUpgrade('p', 33));
+        req = req.div(effectOfUpgrade('p', 34));
 
         return req;
     },
