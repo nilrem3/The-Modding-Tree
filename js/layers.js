@@ -20,8 +20,8 @@ addLayer("p", {
         mult = mult.times(effectOfUpgrade('p', 21))
         mult = mult.times(effectOfUpgrade('p', 22))
 
-        mult = mult.times(effectOfUpgrade('p2', 11))
-
+        mult = mult.times(effectOfUpgrade('p2', 12))
+        
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -65,7 +65,9 @@ addLayer("p", {
             description: "Multiply Point gain by log10(Total prestige points)",
             cost: new Decimal(5),
             effect(){
-                var e = Decimal.log(player[this.layer].total.add(1), 10).add(1);
+                var base = 10;
+                if(hasUpgrade('b', 14)) base = 2
+                var e = Decimal.log(player[this.layer].total.add(1), base).add(1);
 
                 return e
             },
@@ -130,7 +132,9 @@ addLayer("p", {
             description: "Point Gain multiplied by log10(points)",
             cost: new Decimal(500),
             effect(){
-                var e = Decimal.log(player.points.add(1), 10).add(1);
+                var base = 10;
+                if(hasUpgrade('b', 14)) base = 2
+                var e = Decimal.log(player.points.add(1), base).add(1);
 
                 return e;
             },
@@ -160,15 +164,6 @@ addLayer("p", {
                 player['p2'].unlocked = true;
             }
         }
-    },
-    passiveGeneration(){
-        gen = new Decimal(0)
-        
-        if(hasUpgrade('p2', 12)){
-            gen = gen.plus(upgradeEffect('p2', 12))
-        }
-
-        return gen;
     }
 })
 addLayer("m", {
@@ -282,6 +277,17 @@ addLayer("b", {
             },
             effectDisplay(){
                 return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return layers['p2'].layerShown()
+            }
+        },
+        14: {
+            title: "Stronger Log Multipliers",
+            description: "'Log Multiplier' and 'Point Log Multiplier' use base 2 instead of 10",
+            cost: new Decimal(4),
+            unlocked(){
+                return layers['p2'].layerShown()
             }
         }
     }
@@ -289,7 +295,7 @@ addLayer("b", {
 addLayer("p2", {
     name: "Prestige 2",
     symbol: "P2",
-    position: 0,
+    position: 1,
     startData(){
         return {
             unlocked: false,
@@ -317,11 +323,11 @@ addLayer("p2", {
     },
     upgrades: {
         11: {
-            title: "Basic Prestige Point Multiplier",
-            description: "Multiply Prestige Point Gain by 1.5",
+            title: "Even More Points",
+            description: "Multiply Point gain by 4",
             cost: new Decimal(1),
             effect(){
-                var e = new Decimal(1.5);
+                var e = new Decimal(4);
 
                 return e;
             },
@@ -330,24 +336,13 @@ addLayer("p2", {
             }
         },
         12: {
-            title: "Idle Prestige",
-            description: "Gain 10% of prestige point gain on reset per second",
-            cost: new Decimal(2),
-            effect(){
-                var e = new Decimal(0.1)
-                return e
-            },
-            effectDisplay(){
-                return format(upgradeEffect(this.layer, this.id).times(100)) + "%";
-            }
-        },
-        13: {
-            title: "Even More Points",
-            description: "Multiply Point gain by 4",
+            title: "I am running out of name ideas",
+            description: "Multiply Prestige Point gain by 3",
             cost: new Decimal(5),
             effect(){
-                var e = new Decimal(4)
-                return e;
+                var e = new Decimal(3)
+
+                return e
             },
             effectDisplay(){
                 return "x" + format(upgradeEffect(this.layer, this.id));
@@ -355,7 +350,7 @@ addLayer("p2", {
         }
     },
     effect(){
-        var e = new Decimal(2).pow(player['p2'].total)
+        var e = player['p2'].points.add(1).pow(2);
 
         return e
     },

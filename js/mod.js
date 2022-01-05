@@ -53,7 +53,7 @@ function getPointGen() {
 
 	gain = gain.times(layers['m'].effect())
 
-	gain = gain.times(effectOfUpgrade('p2', 13))
+	gain = gain.times(effectOfUpgrade('p2', 11))
 
 	return gain
 }
