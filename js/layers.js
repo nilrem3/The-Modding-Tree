@@ -484,7 +484,7 @@ addLayer("p2", {
         15: {
             title: "Breakfast Time",
             description: "Unlock the next layer",
-            cost: new Decimal("1e3")
+            cost: new Decimal(250)
         }
     },
     effect(){
