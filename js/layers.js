@@ -25,6 +25,8 @@ addLayer("p", {
 
         mult = mult.times(effectOfUpgrade('p', 32))
 
+        mult = mult.times(buyableEffect('pancake', 12))
+
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -280,7 +282,7 @@ addLayer("m", {
         req = new Decimal("1e3") ;
         req = req.div(layers['p2'].effect());
         req = req.div(effectOfUpgrade('p', 34));
-
+        req = req.div(buyableEffect('pancake', 14))
         return req;
     },
     resource: "multiplication points",
@@ -329,7 +331,12 @@ addLayer("b", {
         }
     },
     color: "#ff6969",
-    requires: function() { return new Decimal("1e5").div(layers['p2'].effect())},
+    requires: function() { 
+        req = new Decimal("1e5")
+        req = req.div(layers['p2'].effect())
+        req = req.div(buyableEffect('pancake', 14))
+        return req
+    },
     resource: "Buff Tokens",
     baseResource: "points",
     baseAmount(){return player.points},
@@ -400,7 +407,7 @@ addLayer("b", {
 addLayer("p2", {
     name: "Prestige 2",
     symbol: "P2",
-    position: 1,
+    position: 0,
     startData(){
         return {
             unlocked: false,
@@ -417,6 +424,9 @@ addLayer("p2", {
     exponent: new Decimal(0.25),
     gainMult(){
         mult = new Decimal(1)
+
+        mult = mult.times(buyableEffect('pancake', 13))
+
         return mult
     },
     gainExp(){
@@ -486,4 +496,146 @@ addLayer("p2", {
         return "dividing buff token and multiplication point costs by " + format(layers['p2'].effect());
     },
     branches: ["p", "m", "b"]
+})
+addLayer('pancake', {
+    name: "Pancakes",
+    symbol: "PC",
+    position: 1,
+    startData(){
+        return {
+            unlocked: true,
+            points: new Decimal(0)
+        }
+    },
+    color: "#4d3117",
+    requires: new Decimal("1e10"),
+    resource: "Pancakes",
+    baseResource: "Prestige Points",
+    baseAmount(){return player['p'].points},
+    type: "normal",
+    exponent: new Decimal(0.5),
+    gainMult(){
+        mult = new Decimal(1);
+        return mult;
+    },
+    gainExp(){
+        return new Decimal(1)
+    },
+    row: 1,
+    layerShown(){
+        return hasUpgrade('p2', 15)
+    },
+    buyables: {
+        11: {
+            title: "Butter",
+            cost(x){
+                linear = new Decimal(1);
+                quad = x.add(1).pow(1.1)
+                exp = new Decimal(1.1).pow(x)
+                qexp = new Decimal(1.01).pow(x.pow(2))
+                return linear.times(quad).times(exp).times(qexp)
+            },
+            effect(x){
+                var e = new Decimal(1.2).pow(x)
+                return e;
+            },
+            display(){
+                desc = "Multiplies Point Gain";
+                currenteff = "current: x" + format(buyableEffect('pancake', 11));
+                cost = "Cost: " + format(this.cost(getBuyableAmount('pancake', 11))) + " " + layers[this.layer].resource;
+                return desc + "\n" + currenteff + "\n" + cost;
+            },
+            canAfford(){
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            }
+        },
+        12: {
+            title: "Syrup",
+            cost(x){
+                linear = new Decimal(10);
+                quad = x.add(1).pow(1.5)
+                exp = new Decimal(1.2).pow(x)
+                qexp = new Decimal(1.02).pow(x.pow(2))
+                return linear.times(quad).times(exp).times(qexp)
+            },
+            effect(x){
+                var e = new Decimal(1.1).pow(x)
+                return e;
+            },
+            display(){
+                desc = "Multiplies Prestige Point Gain";
+                currenteff = "current: x" + format(buyableEffect(this.layer, this.id));
+                cost = "Cost: " + format(this.cost(getBuyableAmount(this.layer, this.id))) + " " + layers[this.layer].resource;
+                return desc + "\n" + currenteff + "\n" + cost;
+            },
+            canAfford(){
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            }
+        },
+        13: {
+            title: "Jam",
+            cost(x){
+                linear = new Decimal("1e3");
+                quad = x.add(1).pow(2)
+                exp = new Decimal(1.5).pow(x)
+                qexp = new Decimal(1);
+                sexp = new Decimal(2).pow(new Decimal(1.2).pow(x))
+                return linear.times(quad).times(exp).times(qexp).times(sexp)
+            },
+            effect(x){
+                var e = new Decimal(1.1).pow(x)
+                return e;
+            },
+            display(){
+                desc = "Multiplies Prestige 2 Point Gain";
+                currenteff = "current: x" + format(buyableEffect(this.layer, this.id));
+                cost = "Cost: " + format(this.cost(getBuyableAmount(this.layer, this.id))) + " " + layers[this.layer].resource;
+                return desc + "\n" + currenteff + "\n" + cost;
+            },
+            canAfford(){
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            }
+        },
+        14: {
+            title: "Jam",
+            cost(x){
+                linear = new Decimal("1e5");
+                quad = new Decimal(1)
+                exp = new Decimal(1.5).pow(x)
+                qexp = new Decimal(2).pow(x.pow(2));
+                sexp = new Decimal(2).pow(new Decimal(1.3).pow(x));
+                return linear.times(quad).times(exp).times(qexp).times(sexp)
+            },
+            effect(x){
+                var e = new Decimal(2).pow(x)
+                return e;
+            },
+            display(){
+                desc = "Divides cost of multiplication points and buff tokens";
+                currenteff = "current: x" + format(buyableEffect(this.layer, this.id));
+                cost = "Cost: " + format(this.cost(getBuyableAmount(this.layer, this.id))) + " " + layers[this.layer].resource;
+                return desc + "\n" + currenteff + "\n" + cost;
+            },
+            canAfford(){
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            }
+        }
+    },
+    branches: ['p', 'm', 'b']
 })
