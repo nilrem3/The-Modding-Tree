@@ -508,7 +508,7 @@ addLayer('pancake', {
         }
     },
     color: "#4d3117",
-    requires: new Decimal("1e10"),
+    requires: new Decimal("1e9"),
     resource: "Pancakes",
     baseResource: "Prestige Points",
     baseAmount(){return player['p'].points},
