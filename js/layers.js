@@ -504,7 +504,8 @@ addLayer('pancake', {
     startData(){
         return {
             unlocked: true,
-            points: new Decimal(0)
+            points: new Decimal(0),
+            total: new Decimal(0)
         }
     },
     color: "#4d3117",
@@ -529,11 +530,10 @@ addLayer('pancake', {
         11: {
             title: "Butter",
             cost(x){
-                linear = new Decimal(1);
-                quad = x.add(1).pow(1.1)
-                exp = new Decimal(1.1).pow(x)
-                qexp = new Decimal(1.01).pow(x.pow(2))
-                return linear.times(quad).times(exp).times(qexp)
+                cost = x.add(1).pow(1.1)
+                if(x.gte(5)) cost = cost.times(new Decimal(1.1).pow(x.sub(5)))
+                if(x.gte(15)) cost = cost.times(new Decimal(1.01).pow(x.sub(15).pow(2)))
+                return cost
             },
             effect(x){
                 var e = new Decimal(1.2).pow(x)
@@ -556,11 +556,10 @@ addLayer('pancake', {
         12: {
             title: "Syrup",
             cost(x){
-                linear = new Decimal(10);
-                quad = x.add(1).pow(1.5)
-                exp = new Decimal(1.2).pow(x)
-                qexp = new Decimal(1.02).pow(x.pow(2))
-                return linear.times(quad).times(exp).times(qexp)
+                cost = x.add(1).pow(1.5)
+                if(x.gte(3)) cost = cost.times(new Decimal(1.2).pow(x.sub(3)))
+                if(x.gte(10)) cost = cost.times(new Decimal(1.02).pow(x.sub(10).pow(2)))
+                return cost
             },
             effect(x){
                 var e = new Decimal(1.1).pow(x)
@@ -583,12 +582,10 @@ addLayer('pancake', {
         13: {
             title: "Jam",
             cost(x){
-                linear = new Decimal("1e3");
-                quad = x.add(1).pow(2)
-                exp = new Decimal(1.5).pow(x)
-                qexp = new Decimal(1);
-                sexp = new Decimal(2).pow(new Decimal(1.2).pow(x))
-                return linear.times(quad).times(exp).times(qexp).times(sexp)
+                cost = x.add(1).pow(2)
+                if(x.gte(2)) cost = cost.times(new Decimal(1.5).pow(x.sub(2)))
+                if(x.gte(5)) cost = cost.times(new Decimal(1.05).pow(x.sub(5).pow(2)))
+                return cost
             },
             effect(x){
                 var e = new Decimal(1.1).pow(x)
@@ -611,12 +608,10 @@ addLayer('pancake', {
         14: {
             title: "Jam",
             cost(x){
-                linear = new Decimal("1e5");
-                quad = new Decimal(1)
-                exp = new Decimal(1.5).pow(x)
-                qexp = new Decimal(2).pow(x.pow(2));
-                sexp = new Decimal(2).pow(new Decimal(1.3).pow(x));
-                return linear.times(quad).times(exp).times(qexp).times(sexp)
+                cost = x.add(1).pow(2)
+                cost = cost.times(new Decimal(2).pow(x))
+                if(x.gte(3)) cost = cost.times(new Decimal(1.1).pow(x.sub(3).pow(2)))
+                return cost
             },
             effect(x){
                 var e = new Decimal(2).pow(x)
