@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.12",
-	name: "basic pancake stuff",
+	num: "0.2",
+	name: "Second Row Done!",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
@@ -61,6 +61,9 @@ function getPointGen() {
 	gain = gain.times(effectOfUpgrade('p', 35))
 
 	gain = gain.times(buyableEffect('pancake', 11))
+
+	//EXPONENTS
+	gain = gain.pow(effectOfUpgrade('b', 24))
 
 	return gain
 }

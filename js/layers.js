@@ -44,6 +44,7 @@ addLayer("p", {
 
                 e = e.pow(effectOfUpgrade('b', 11))
 
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e;
             },
             effectDisplay(){
@@ -58,6 +59,7 @@ addLayer("p", {
                 var e = new Decimal(5);
 
                 e = e.pow(effectOfUpgrade('b', 12))
+                e = e.pow(effectOfUpgrade('b', 21))
 
                 return e
             },
@@ -73,7 +75,7 @@ addLayer("p", {
                 var base = 10;
                 if(hasUpgrade('b', 14)) base = 2
                 var e = Decimal.log(player[this.layer].total.add(1), base).add(1);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e
             },
             effectDisplay(){
@@ -93,6 +95,7 @@ addLayer("p", {
                 var e = new Decimal(3);
 
                 e = e.pow(effectOfUpgrade('b', 11))
+                e = e.pow(effectOfUpgrade('b', 21))
 
                 return e
             },
@@ -106,6 +109,8 @@ addLayer("p", {
             cost: new Decimal(100),
             effect(){
                 var e = new Decimal(1.5);
+
+                e = e.pow(effectOfUpgrade('b', 21))
 
                 return e;
             },
@@ -122,7 +127,7 @@ addLayer("p", {
             cost: new Decimal(250),
             effect(){
                 var e = new Decimal(1.1).pow(player['m'].points);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e;
             },
             effectDisplay(){
@@ -140,7 +145,7 @@ addLayer("p", {
                 var base = 10;
                 if(hasUpgrade('b', 14)) base = 2
                 var e = Decimal.log(player.points.add(1), base).add(1);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e;
             },
             effectDisplay(){
@@ -175,7 +180,7 @@ addLayer("p", {
             cost: new Decimal("1e6"),
             effect(){
                 var e = new Decimal(10);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e;
             },
             effectDisplay(){
@@ -191,7 +196,7 @@ addLayer("p", {
             cost: new Decimal("1e7"),
             effect(){
                 var e = new Decimal(5);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e;
             },
             effectDisplay(){
@@ -223,7 +228,7 @@ addLayer("p", {
                 if(hasUpgrade('p', 33)) e = e.times(1.1);
                 if(hasUpgrade('p', 34)) e = e.times(1.1);
                 if(hasUpgrade('p', 35)) e = e.times(1.1);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e;
             },
             effectDisplay(){
@@ -239,7 +244,7 @@ addLayer("p", {
             cost: new Decimal("5e8"),
             effect(){
                 var e = new Decimal(50);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e;
             },
             effectDisplay(){
@@ -255,7 +260,7 @@ addLayer("p", {
             cost: new Decimal("1e9"),
             effect(){
                 var e = player['b'].points.add(1).pow(2);
-
+                e = e.pow(effectOfUpgrade('b', 21))
                 return e
             },
             effectDisplay(){
@@ -263,6 +268,21 @@ addLayer("p", {
             },
             unlocked(){
                 return hasUpgrade('p2', 14)
+            }
+        }
+    },
+    passiveGeneration(){
+        if(hasMilestone('pancake', 3)){
+            return new Decimal(0.1)
+        }
+        return new Decimal(0)
+    },
+    doReset(resettinglayer){
+        if(layers[resettinglayer].row > layers[this.layer].row){
+            if(hasMilestone('pancake', 4)) {
+                layerDataReset(this.layer, ["upgrades"])
+            }else{
+                layerDataReset(this.layer, [])
             }
         }
     }
@@ -306,6 +326,8 @@ addLayer("m", {
 
         strength = strength.times(effectOfUpgrade('b', 13))
 
+        strength = strength.times(effectOfUpgrade('b', 22))
+
         var e = strength.pow(player['m'].points);
         return e;
     },
@@ -318,6 +340,12 @@ addLayer("m", {
             effectDescription: "Unlock the next 5 prestige upgrades",
             done(){ return player['m'].points.gte(3)}
         }
+    },
+    autoPrestige(){
+        return layers[this.layer].layerShown() && hasMilestone('pancake', 0)
+    },
+    resetsNothing(){
+        return hasMilestone('pancake', 5)
     }
 })
 addLayer("b", {
@@ -335,6 +363,7 @@ addLayer("b", {
         req = new Decimal("1e5")
         req = req.div(layers['p2'].effect())
         req = req.div(buyableEffect('pancake', 14))
+        req = req.div(effectOfUpgrade('p2', 22))
         return req
     },
     resource: "Buff Tokens",
@@ -401,8 +430,88 @@ addLayer("b", {
             unlocked(){
                 return layers['p2'].layerShown()
             }
+        },
+        21: {
+            title: "Better Prestige",
+            description: "ALL prestige upgrade effects are raised ^1.15",
+            cost: new Decimal(5),
+            effect(){
+                var e = new Decimal(1.15);
+
+                return e;
+            },
+            effectDisplay(){
+                return "^" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 12)
+            }
+        },
+        22: {
+            title: "Breakfasted Multiplication Points",
+            description: "Multiplication point effect multiplied by Log10(Total Pancakes)^(1/4)",
+            cost: new Decimal(6),
+            effect(){
+                var e = player['pancake'].total.add(1).log(10).add(1).pow(1/4)
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 12)
+            }
+        },
+        23: {
+            title: "Better Prestige 2",
+            description: "Prestige 2 effect raised ^2",
+            cost: new Decimal(7),
+            effect(){
+                var e = new Decimal(2);
+
+                return e;
+            },
+            effectDisplay(){
+                return "^" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 12)
+            }
+        },
+        24: {
+            title: "More Points",
+            description: "Point Gain raised ^1.1",
+            cost: new Decimal(8),
+            effect(){
+                var e = new Decimal(1.1);
+
+                return e;
+            },
+            effectDisplay(){
+                return "^" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 12)
+            }
         }
-    }
+    },
+    autoPrestige(){
+        return layers[this.layer].layerShown && hasMilestone('pancake', 1)
+    },
+    doReset(resettinglayer){
+        if(layers[resettinglayer].row > layers[this.layer].row){
+            if(hasMilestone('pancake', 2)) {
+                layerDataReset(this.layer, ["upgrades"])
+            }else{
+                layerDataReset(this.layer, [])
+            }
+        }
+    },
+    resetsNothing(){
+        return hasMilestone('pancake', 5)
+    },
+    milestonePopups: false
 })
 addLayer("p2", {
     name: "Prestige 2",
@@ -443,6 +552,8 @@ addLayer("p2", {
             cost: new Decimal(1),
             effect(){
                 var e = new Decimal(4);
+                
+                e = e.pow(effectOfUpgrade('p2', 21))
 
                 return e;
             },
@@ -456,6 +567,8 @@ addLayer("p2", {
             cost: new Decimal(5),
             effect(){
                 var e = new Decimal(3)
+                
+                e = e.pow(effectOfUpgrade('p2', 21))
 
                 return e
             },
@@ -469,6 +582,8 @@ addLayer("p2", {
             cost: new Decimal(10),
             effect(){
                 var e = player['p2'].total.add(1).log(10).add(1)
+                
+                e = e.pow(effectOfUpgrade('p2', 21))
 
                 return e
             },
@@ -482,13 +597,110 @@ addLayer("p2", {
             cost: new Decimal(25)
         },
         15: {
-            title: "Breakfast Time",
-            description: "Unlock the next layer",
-            cost: new Decimal(250)
+            title: "Great Hunger",
+            description: "Multiply Pancake gain by 2.5",
+            cost: new Decimal(500),
+            effect(){
+                var e = new Decimal(2.5);
+
+                e = e.pow(effectOfUpgrade('p2', 21))
+
+                return e;
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasMilestone('pancake', 0)
+            }
+        },
+        21: {
+            title: "P2 Upgrade Boost",
+            description: "All first row P2 upgrades are raised ^1.5",
+            cost: new Decimal("5e4"),
+            effect(){
+                var e = new Decimal(1.5)
+
+                return e
+            },
+            effectDisplay(){
+                return "^" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 11)
+            }
+        },
+        22: {
+            title: "Cheaper Buffs",
+            description: "Buff Tokens are 1e20x Cheaper",
+            cost: new Decimal("1e6"),
+            effect(){
+                var e = new Decimal("1e20")
+
+                return e
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 11)
+            }
+        },
+        23: {
+            title: "Softer Pancakes",
+            description: "Delay Pancake softcap by 10x",
+            cost: new Decimal("1e7"),
+            effect(){
+                var e = new Decimal(10)
+
+                return e
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 11)
+            }
+        },
+        24: {
+            title: "Stronger Toppings",
+            description: "Effects of pancake buyables raised ^2",
+            cost: new Decimal("1e8"),
+            effect(){
+                var e = new Decimal(2)
+
+                return e
+            },
+            effectDisplay(){
+                return "x" + format(upgradeEffect(this.layer, this.id));
+            },
+            unlocked(){
+                return hasUpgrade('pancake', 11)
+            }
+        },
+        25: {
+            title: "Prestige 3?",
+            description: "Unlocks the next layer",
+            cost: new Decimal("5e14"),
+            unlocked(){
+                return hasUpgrade('pancake', 11)
+            },
+            onPurchase(){
+                player['p3'].unlocked = true;
+            }
         }
+    },
+    milestones: {
+        0: {
+            requirementDescription: "250 Total Prestige 2 Points",
+            effectDescription: "Unlocks the next layer",
+            done(){return player['p2'].total.gte(250)}
+        }  
     },
     effect(){
         var e = player['p2'].points.add(1).pow(2);
+
+        e = e.pow(effectOfUpgrade('b', 23))
 
         return e
     },
@@ -517,6 +729,9 @@ addLayer('pancake', {
     exponent: new Decimal(0.5),
     gainMult(){
         mult = new Decimal(1);
+
+        mult = mult.times(effectOfUpgrade('p2', 15))
+
         return mult;
     },
     gainExp(){
@@ -524,19 +739,22 @@ addLayer('pancake', {
     },
     row: 1,
     layerShown(){
-        return hasUpgrade('p2', 15)
+        return hasMilestone('p2', 0)
     },
     buyables: {
         11: {
             title: "Butter",
             cost(x){
                 cost = x.add(1).pow(1.1)
-                if(x.gte(5)) cost = cost.times(new Decimal(1.1).pow(x.sub(5)))
-                if(x.gte(15)) cost = cost.times(new Decimal(1.01).pow(x.sub(15).pow(2)))
+                if(x.gte(4)) cost = cost.times(new Decimal(1.1).pow(x.sub(4)))
+                if(x.gte(10)) cost = cost.times(new Decimal(1.01).pow(x.sub(10).pow(2)))
                 return cost
             },
             effect(x){
-                var e = new Decimal(1.2).pow(x)
+                var e = new Decimal(2).pow(x)
+
+                e = e.pow(effectOfUpgrade('p2', 24))
+
                 return e;
             },
             display(){
@@ -558,11 +776,14 @@ addLayer('pancake', {
             cost(x){
                 cost = x.add(1).pow(1.5)
                 if(x.gte(3)) cost = cost.times(new Decimal(1.2).pow(x.sub(3)))
-                if(x.gte(10)) cost = cost.times(new Decimal(1.02).pow(x.sub(10).pow(2)))
+                if(x.gte(5)) cost = cost.times(new Decimal(1.02).pow(x.sub(5).pow(2)))
                 return cost
             },
             effect(x){
-                var e = new Decimal(1.1).pow(x)
+                var e = new Decimal(1.5).pow(x)
+
+                e = e.pow(effectOfUpgrade('p2', 24))
+
                 return e;
             },
             display(){
@@ -580,15 +801,18 @@ addLayer('pancake', {
             }
         },
         13: {
-            title: "Jam",
+            title: "Peanut Butter",
             cost(x){
                 cost = x.add(1).pow(2)
-                if(x.gte(2)) cost = cost.times(new Decimal(1.5).pow(x.sub(2)))
-                if(x.gte(5)) cost = cost.times(new Decimal(1.05).pow(x.sub(5).pow(2)))
+                cost = cost.times(new Decimal(1.5).pow(x))
+                if(x.gte(3)) cost = cost.times(new Decimal(1.05).pow(x.sub(3).pow(2)))
                 return cost
             },
             effect(x){
-                var e = new Decimal(1.1).pow(x)
+                var e = new Decimal(1.15).pow(x)
+
+                e = e.pow(effectOfUpgrade('p2', 24))
+
                 return e;
             },
             display(){
@@ -610,11 +834,14 @@ addLayer('pancake', {
             cost(x){
                 cost = x.add(1).pow(2)
                 cost = cost.times(new Decimal(2).pow(x))
-                if(x.gte(3)) cost = cost.times(new Decimal(1.1).pow(x.sub(3).pow(2)))
+                cost = cost.times(new Decimal(1.1).pow(x.pow(2)))
                 return cost
             },
             effect(x){
-                var e = new Decimal(2).pow(x)
+                var e = new Decimal(4).pow(x)
+
+                e = e.pow(effectOfUpgrade('p2', 24))
+
                 return e;
             },
             display(){
@@ -632,5 +859,94 @@ addLayer('pancake', {
             }
         }
     },
-    branches: ['p', 'm', 'b']
+    branches: ['p'],
+    milestones: {
+        0: {
+            requirementDescription: "1 Total Pancake",
+            effectDescription: "Automatically reset for Multiplication Points",
+            done(){return player['pancake'].total.gte(1)}
+        },
+        1: {
+            requirementDescription: "10 Total Pancakes",
+            effectDescription: "Automatically reset for Buff Points",
+            done(){return player['pancake'].total.gte(10)}
+        },
+        2: {
+            requirementDescription: "100 Total Pancakes",
+            effectDescription: "Keep buff upgrades on reset",
+            done(){return player['pancake'].total.gte(100)}
+        },
+        3: {
+            requirementDescription: "1000 Total Pancakes",
+            effectDescription: "Gain 10% of Prestige Points on reset per Second",
+            done(){return player['pancake'].total.gte(1000)}
+        },
+        4: {
+            requirementDescription: "1e6 Total Pancakes",
+            effectDescription: "Keep Prestige Upgrades on reset",
+            done(){return player['pancake'].total.gte("1e6")}
+        },
+        5: {
+            requirementDescription: "2e7 Total Pancakes",
+            effectDescription: "Buff Tokens and Multiplication Points don't reset your points",
+            done(){return player['pancake'].total.gte("2e7")}
+        }
+    },
+    upgrades: {
+        11: {
+            title: "More Prestige 2 Upgrades",
+            description: "Unlocks the next row of Prestige 2 Upgrades",
+            cost: new Decimal(25)
+        },
+        12: {
+            title: "More Buffs",
+            description: "Unlocks the next 4 buffs",
+            cost: new Decimal("1e5")
+        }
+    },
+    softcap(){ 
+        var cap = new Decimal("1e4")
+
+        cap = cap.times(effectOfUpgrade('p2', 23))
+
+        return cap
+    },
+    softcapPower: new Decimal(1/4),
+    effectDescription(){
+        return "currently softcapped at " + format(layers[this.layer].softcap())
+    },
+    milestonePopups: false
+})
+addLayer('p3', {
+    name: "Prestige 3",
+    symbol: "P3",
+    position: 1,
+    startData(){
+        return {
+            unlocked: false,
+            points: new Decimal(0),
+            total: new Decimal(0)
+        }
+    },
+    color: "#808080",
+    requires: new Decimal("1e14"),
+    resource: "prestige 3 points",
+    baseResource: "prestige 2 points",
+    baseAmount(){return player['p2'].points},
+    type: "normal",
+    exponent: 1/8,
+    gainMult(){
+        mult = new Decimal(1)
+
+        return mult
+    },
+    gainExp(){
+        return new Decimal(1)
+    },
+    row: 2,
+    layerShown(){return player[this.layer].unlocked},
+    branches: ['pancake', 'p2'],
+    effectDescription(){
+        return "Which currently do nothing.  The next update is on the way! In the mean time, you can grind out p3 points, or just wait for the update."
+    }
 })
